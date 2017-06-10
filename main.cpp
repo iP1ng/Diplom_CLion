@@ -23,7 +23,7 @@ int main()
 
     // chislo tochek
     int n = triangle.GetGreed();
-    LOG(INFO) << "Number of dots = " << n;
+    LOG(INFO) << "Number of dots = " << n + 1;
     // chislo treugolnilov
     int k = triangle.triangles_array.size();
     LOG(INFO) << "Number of triangles = " << k;
