@@ -4,8 +4,13 @@
 #include "triangle.h"
 #include "gauss.h"
 
+
+
 // Test
 INITIALIZE_EASYLOGGINGPP
+
+double_t func_calculate_rho(double_t h);
+double_t func_calculate_q(double_t t);
 
 using namespace std;
 int main()
@@ -20,22 +25,22 @@ int main()
     IsoscelesTriangleGrid triangle(A, B, C, STEP_X);
 
     double tau = TAU;
-
     // chislo tochek
-    int n = triangle.GetGreed();
-    LOG(INFO) << "Number of dots = " << n + 1;
+    int n = triangle.GetGreed() + 1;
+    LOG(INFO) << "Number of dots = " << n;
     // chislo treugolnilov
     int k = triangle.triangles_array.size();
     LOG(INFO) << "Number of triangles = " << k;
 
-    file << k << endl;
-    double q = 200;
+
+    double q = func_calculate_q(tau);
     double* Result;
     Result = new double[n];
     double* F;
     F = new double[3];
     double* Temp;
     Temp = new double[n];
+    file << k << endl;
 
     double** Main_Matrix;
     Main_Matrix = new double*[n];
@@ -49,7 +54,7 @@ int main()
     }
     for (int i =0; i<n; i++){
         Result[i] = 0;
-        Temp[i] = 300;
+        Temp[i] = INITIAL_TEMPERATURE;
 
     }
     double_t** K;
@@ -81,16 +86,17 @@ int main()
         ind[0] = triangle.triangles_array[i].first_point.point_num;
         ind[1] = triangle.triangles_array[i].second_point.point_num;
         ind[2] = triangle.triangles_array[i].third_point.point_num;
+
         cout<<"-------------"<<endl;
         for (int ii = 0; ii < 3; ii++) {
             Result[ind[ii]] += -F[ii];
             for (int j = 0; j < 3; j++){
                 //Main_Matrix[ind[ii]][ind[j]] += C[ii][j] / tau + 0.5 * K[ii][j];
-                Main_Matrix[ind[ii]][ind[j]] += 0.5 * K[ii][j];
                 cout<<ind[ii]<<" "<<ind[j]<<endl;
+                Main_Matrix[ind[ii]][ind[j]] += 0.5 * K[ii][j];
             }
-
         }
+
         file1<< k << endl;
         for (int iii = 0; iii < n; iii++) {
             for (int j = 0; j < n; j++) {
@@ -99,8 +105,8 @@ int main()
             file1 << endl;
         }
         file1<<" ------------------------------------------"<< endl;
-
     }
+
 
     for (int jj = 0; jj < n; jj++){
         //Result[jj] += Temp[jj] / tau;
@@ -124,3 +130,18 @@ int main()
     return 0;
 }
 
+double_t func_calculate_rho(double_t h){
+    return  (1.2 * exp(- 0.00013 * h));
+}
+
+double_t func_calculate_q(double_t t){
+    // Тепловой поток при скорости 3000 м/c на расстоянии 1 м от Земли
+    double_t S = 1;
+    double_t rho = func_calculate_rho(1);
+    double_t V = 3000;
+    double_t pi = 3.1415926;
+    double_t r = 1;
+    double_t H = 2;
+
+    return ((S * rho * V * V * V) / (pi * r * sqrt(r * r + H * H)));
+}
