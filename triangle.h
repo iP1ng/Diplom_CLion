@@ -10,13 +10,14 @@
 #include <math.h>
 
 /* Мои хедеры */
-#include "structures.h"
 #include "constants.h"
+#include "structures.h"
+
 
 /* Debug */
 #include <iostream>
 #include <fstream>
-#include "easylogging++.h"
+#include "EasyLogging/easylogging++.h"
 
 /*
  * Построение треугольной сетки на равнобедренном треугольнике.

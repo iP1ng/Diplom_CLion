@@ -1,12 +1,7 @@
 
-
-
 #include "triangle.h"
 #include "gauss.h"
 
-
-
-// Test
 INITIALIZE_EASYLOGGINGPP
 
 double_t func_calculate_rho(double_t h);
@@ -15,15 +10,18 @@ double_t func_calculate_q(double_t t);
 using namespace std;
 int main()
 {
-    el::Loggers::reconfigureAllLoggers(el::ConfigurationType::Format, "%level  (%func): %msg");
+    el::Loggers::reconfigureAllLoggers(el::ConfigurationType::Format, "%level: %msg");
     LOG(INFO) << "Starting programm...";
 
     GaussMethod equation;
-    ofstream file("triangles.dat");
+
     ofstream file1("Main_matrix.dat");
 
-    IsoscelesTriangleGrid triangle(A, B, C, STEP_X);
+    const points Point_A = (points){ 0, 0 };
+    const points Point_B = (points){ 1, 0 };
+    const points Point_C = (points){ 1, 2 };
 
+    IsoscelesTriangleGrid triangle(Point_A, Point_B, Point_C, STEP_X);
     double tau = TAU;
     // chislo tochek
     int n = triangle.GetGreed() + 1;
@@ -32,7 +30,6 @@ int main()
     int k = triangle.triangles_array.size();
     LOG(INFO) << "Number of triangles = " << k;
 
-
     double q = func_calculate_q(tau);
     double* Result;
     Result = new double[n];
@@ -40,7 +37,6 @@ int main()
     F = new double[3];
     double* Temp;
     Temp = new double[n];
-    file << k << endl;
 
     double** Main_Matrix;
     Main_Matrix = new double*[n];
@@ -70,17 +66,18 @@ int main()
     }
 
     for (int i = 0; i < k; i++) {
-        file << triangle.triangles_array[i].first_point.x << " " << triangle.triangles_array[i].first_point.y << " ";
-        file << triangle.triangles_array[i].second_point.x << " " << triangle.triangles_array[i].second_point.y << " ";
-        file << triangle.triangles_array[i].third_point.x << " " << triangle.triangles_array[i].third_point.y;
-        file << endl;
-    }
-    file.close();
-
-    for (int i = 0; i < k; i++) {
         triangle.triangles_array[i].Matrix_K(K);
         triangle.triangles_array[i].Matrix_C(C);
         triangle.triangles_array[i].Column_F(F, q);
+
+        cout << "Matrix K: " << endl;
+
+        for (int iii = 0; iii < 3; iii++) {
+            for (int j = 0; j < 3; j++) {
+                cout << K[iii][j] << " ";
+            }
+            cout << endl;
+        }
 
         int ind[3];
         ind[0] = triangle.triangles_array[i].first_point.point_num;
@@ -91,9 +88,9 @@ int main()
         for (int ii = 0; ii < 3; ii++) {
             Result[ind[ii]] += -F[ii];
             for (int j = 0; j < 3; j++){
-                //Main_Matrix[ind[ii]][ind[j]] += C[ii][j] / tau + 0.5 * K[ii][j];
+                Main_Matrix[ind[ii]][ind[j]] += C[ii][j] / tau + 0.5 * K[ii][j];
                 cout<<ind[ii]<<" "<<ind[j]<<endl;
-                Main_Matrix[ind[ii]][ind[j]] += 0.5 * K[ii][j];
+                //Main_Matrix[ind[ii]][ind[j]] += 0.5 * K[ii][j];
             }
         }
 
@@ -104,12 +101,13 @@ int main()
             }
             file1 << endl;
         }
+
         file1<<" ------------------------------------------"<< endl;
     }
 
 
     for (int jj = 0; jj < n; jj++){
-        //Result[jj] += Temp[jj] / tau;
+        Result[jj] += Temp[jj] / tau;
         cout<<Result[jj]<<endl;
 
     }
@@ -124,7 +122,6 @@ int main()
     }
     file1.close();
     Temp = equation.GaussSolve(Main_Matrix, Result, n);
-    //Temp = gauss(Main_Matrix, Result, n);
     for (int i = 0; i < n; i++)
         cout << Temp[i] << endl;
     return 0;
@@ -143,5 +140,5 @@ double_t func_calculate_q(double_t t){
     double_t r = 1;
     double_t H = 2;
 
-    return ((S * rho * V * V * V) / (pi * r * sqrt(r * r + H * H)));
+    return ((S * rho * V * V * V) / (Thermal_Conductivity * pi * r * sqrt(r * r + H * H)));
 }

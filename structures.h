@@ -2,9 +2,7 @@
 #ifndef STRUCTURES_H
 #define STRUCTURES_H
 #include <iostream>
-
-const double step_x = 0.5;
-const double Pi = 3.1415926;
+#include "constants.h"
 
 /*
  * Структура, описывающая координаты и номер узла, а также радиус-вектор узла.
@@ -46,7 +44,7 @@ struct triangles {
     }
     double_t GetSquareTriangleArea()
     {
-        return step_x * 2 * step_x * 0.5;
+        return STEP_X * 2 * STEP_X * 0.5;
     }
     double_t GetMatrixADeterminant()
     {
@@ -73,7 +71,10 @@ struct triangles {
         p[1].y = second_point.y;
         p[2].x = third_point.x;
         p[2].y = third_point.y;
-        double_t R = (1/12) * ((2 * p[0].rad_vector()
+        //std::cout << "p[0].rad_vector() = " << p[0].rad_vector() << std::endl;
+        //std::cout << "p[1].rad_vector() = " << p[1].rad_vector() << std::endl;
+        //std::cout << "p[2].rad_vector() = " << p[2].rad_vector() << std::endl;
+        double_t R = (0.0833333333333333333333333) * ((2 * p[0].rad_vector()
                      + p[1].rad_vector()
                      + p[2].rad_vector()) * p[0].rad_vector()
                      + (p[0].rad_vector()
@@ -84,8 +85,17 @@ struct triangles {
                      + 2 * p[2].rad_vector()) * p[2].rad_vector());
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
-                K[i][j] = (2 * Pi * R / (4 * this->GetMatrixADeterminant())) * (b[i] * b[j] + c[i] * c[j]);
+                //std::cout << "Thermal_Diffusivity = " << Thermal_Diffusivity << std::endl;
+                //std::cout << "PI = " << PI << std::endl;
+                //std::cout << "R = " << R << std::endl;
+                ///std::cout << "this->GetMatrixADeterminant() = " << this->GetMatrixADeterminant() << std::endl;
+                //std::cout << "b[i] = " << b[i] << "b[j] = " << b[j] << std::endl;
+                //std::cout << "c[i] = " << c[i] << "c[j] = " << c[j] << std::endl;
+                K[i][j] = (Thermal_Diffusivity * 2 * PI * R / (4 * this->GetMatrixADeterminant()))
+                          * (b[i] * b[j] + c[i] * c[j]);
+                std::cout << K[i][j] << " ";
             }
+            std::cout << std::endl;
         }
     }
     void Matrix_C(double** C)
@@ -98,7 +108,7 @@ struct triangles {
         p[2].x = third_point.x;
         p[2].y = third_point.y;
 
-        double_t D = 2 * Pi * this->GetMatrixADeterminant() / 180;
+        double_t D = 2 * PI * this->GetMatrixADeterminant() / 180;
         double_t R[3];
         for (int i = 0; i < 3; i++) {
             R[i] = p[i].rad_vector();
@@ -146,15 +156,14 @@ struct triangles {
     }
     void Column_F(double* F, double q)
     {
-        double L = sqrt(step_x * step_x + 4 * step_x * step_x);
-        double k = L * q * 2 * Pi / 6;
+        double L = sqrt(STEP_X * STEP_X + 4 * STEP_X * STEP_X);
+        double k = L * q * 2 * PI / 6;
         F[0] = 0;
         F[1] = 0;
         F[2] = 0;
         if (fabs(2 * first_point.x - first_point.y) < 0.01 && fabs(2 * third_point.x - third_point.y) < 0.01) {
             F[0] = k * (2 * first_point.rad_vector() + third_point.rad_vector());
             F[2] = k * (first_point.rad_vector() + 2 * third_point.rad_vector());
-            //std::cout << "Hi!" << std::endl;
         }
     }
 };
