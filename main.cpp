@@ -4,7 +4,7 @@
 #include "triangle.h"
 #include "gauss.h"
 
-
+// Test
 INITIALIZE_EASYLOGGINGPP
 
 using namespace std;
