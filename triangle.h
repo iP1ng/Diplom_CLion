@@ -13,7 +13,6 @@
 #include "constants.h"
 #include "structures.h"
 
-
 /* Debug */
 #include <iostream>
 #include <fstream>
