@@ -6,6 +6,7 @@ INITIALIZE_EASYLOGGINGPP
 
 double_t func_calculate_rho(double_t h);
 double_t func_calculate_q(double_t t);
+double_t * func_multiply_matrix_and_vector(double_t ** matrix, double_t * vect, uint_fast32_t dim);
 
 using namespace std;
 int main()
@@ -24,7 +25,7 @@ int main()
     IsoscelesTriangleGrid triangle(Point_A, Point_B, Point_C, STEP_X);
     double tau = TAU;
     // chislo tochek
-    int n = triangle.GetGreed() + 1;
+    int n = triangle.GetGreed(false) + 1;
     LOG(INFO) << "Number of dots = " << n;
     // chislo treugolnilov
     int k = triangle.triangles_array.size();
@@ -141,4 +142,18 @@ double_t func_calculate_q(double_t t){
     double_t H = 2;
 
     return ((S * rho * V * V * V) / (Thermal_Conductivity * pi * r * sqrt(r * r + H * H)));
+}
+
+double_t * func_multiply_matrix_and_vector(double_t ** matrix, double_t * vect, uint_fast32_t dim) {
+    double_t * result_vector;
+    result_vector = new double_t[3];
+    for (auto i = 0; i < 3; i++)
+        result_vector[i] = 0;
+
+    for (auto i = 0; i < dim; i++){
+        for (auto j = 0; j < dim; j++) {
+            result_vector[i] += vect[j] * matrix[j][i];
+        }
+    }
+    return result_vector;
 }

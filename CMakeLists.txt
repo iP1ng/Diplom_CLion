@@ -3,5 +3,5 @@ project(Diplom)
 
 set(CMAKE_CXX_STANDARD 14)
 
-set(SOURCE_FILES main.cpp triangle.cpp EasyLogging/easylogging++.cc constants.h gauss.cpp gauss.h )
+set(SOURCE_FILES main.cpp triangle.cpp EasyLogging/easylogging++.cc constants.h gauss.cpp gauss.h)
 add_executable(Diplom ${SOURCE_FILES})

@@ -20,7 +20,7 @@ double_t IsoscelesTriangleGrid::LineFunction_bc(double_t x)
     return x;
 }
 
-uint_fast32_t IsoscelesTriangleGrid::GetGreed()
+uint_fast32_t IsoscelesTriangleGrid::GetGreed(boolean debug)
 {
     /*
      * Массив координат треугольников
@@ -89,18 +89,20 @@ uint_fast32_t IsoscelesTriangleGrid::GetGreed()
 
             triangles_array.push_back(triangle);
 
-            LOG(INFO) << "First point of triange " << j <<": ";
-            LOG(INFO) << "x: " << triangles_array.at(j).first_point.x;
-            LOG(INFO) << "y: " << triangles_array.at(j).first_point.y;
-            LOG(INFO) << "k: " << triangles_array.at(j).first_point.point_num;
-            LOG(INFO) << "Second point of triange " << j <<": ";
-            LOG(INFO) << "x: " << triangles_array.at(j).second_point.x;
-            LOG(INFO) << "y: " << triangles_array.at(j).second_point.y;
-            LOG(INFO) << "k: " << triangles_array.at(j).second_point.point_num;
-            LOG(INFO) << "Third point of triange " << j <<": ";
-            LOG(INFO) << "x: " << triangles_array.at(j).third_point.x;
-            LOG(INFO) << "y: " << triangles_array.at(j).third_point.y;
-            LOG(INFO) << "k: " << triangles_array.at(j).third_point.point_num;
+            if (debug == true) {
+                        LOG(INFO) << "First point of triange " << j << ": ";
+                        LOG(INFO) << "x: " << triangles_array.at(j).first_point.x;
+                        LOG(INFO) << "y: " << triangles_array.at(j).first_point.y;
+                        LOG(INFO) << "k: " << triangles_array.at(j).first_point.point_num;
+                        LOG(INFO) << "Second point of triange " << j <<": ";
+                        LOG(INFO) << "x: " << triangles_array.at(j).second_point.x;
+                        LOG(INFO) << "y: " << triangles_array.at(j).second_point.y;
+                        LOG(INFO) << "k: " << triangles_array.at(j).second_point.point_num;
+                        LOG(INFO) << "Third point of triange " << j <<": ";
+                        LOG(INFO) << "x: " << triangles_array.at(j).third_point.x;
+                        LOG(INFO) << "y: " << triangles_array.at(j).third_point.y;
+                        LOG(INFO) << "k: " << triangles_array.at(j).third_point.point_num;
+                }
 
             t2 = abs(x - LineFunction_bc(x));
 
@@ -108,10 +110,12 @@ uint_fast32_t IsoscelesTriangleGrid::GetGreed()
                 ii = l + 1;
                 i = 0;
                 j++;
-                LOG(INFO) << "BREAK CONDITION.";
-                LOG(INFO) << "n = " << n;
                 k = n;
-                LOG(INFO) << "k = " << k;
+                if (debug == true) {
+                    LOG(INFO) << "BREAK CONDITION.";
+                    LOG(INFO) << "n = " << n;
+                    LOG(INFO) << "k = " << k;
+                }
                 break;
             }
 
@@ -128,26 +132,29 @@ uint_fast32_t IsoscelesTriangleGrid::GetGreed()
             triangle.third_point = { x, y, k + 1 + ((uint_fast32_t)(length / m_hx) + 1) };
             triangles_array.push_back(triangle);
 
-            LOG(INFO) << "Second point of triange " << j+1 <<": ";
-            LOG(INFO) << "x: " << triangles_array.at(j+1).first_point.x;
-            LOG(INFO) << "y: " << triangles_array.at(j+1).first_point.y;
-            LOG(INFO) << "k: " << triangles_array.at(j+1).first_point.point_num;
-            LOG(INFO) << "Second point of triange " << j+1 <<": ";
-            LOG(INFO) << "x: " << triangles_array.at(j+1).second_point.x;
-            LOG(INFO) << "y: " << triangles_array.at(j+1).second_point.y;
-            LOG(INFO) << "k: " << triangles_array.at(j+1).second_point.point_num;
-            LOG(INFO) << "Third point of triange " << j+1 <<": ";
-            LOG(INFO) << "x: " << triangles_array.at(j+1).third_point.x;
-            LOG(INFO) << "y: " << triangles_array.at(j+1).third_point.y;
-            LOG(INFO) << "k: " << triangles_array.at(j+1).third_point.point_num;
-
+            if (debug == true) {
+                LOG(INFO) << "Second point of triange " << j + 1 << ": ";
+                LOG(INFO) << "x: " << triangles_array.at(j + 1).first_point.x;
+                LOG(INFO) << "y: " << triangles_array.at(j + 1).first_point.y;
+                LOG(INFO) << "k: " << triangles_array.at(j + 1).first_point.point_num;
+                LOG(INFO) << "Second point of triange " << j + 1 << ": ";
+                LOG(INFO) << "x: " << triangles_array.at(j + 1).second_point.x;
+                LOG(INFO) << "y: " << triangles_array.at(j + 1).second_point.y;
+                LOG(INFO) << "k: " << triangles_array.at(j + 1).second_point.point_num;
+                LOG(INFO) << "Third point of triange " << j + 1 << ": ";
+                LOG(INFO) << "x: " << triangles_array.at(j + 1).third_point.x;
+                LOG(INFO) << "y: " << triangles_array.at(j + 1).third_point.y;
+                LOG(INFO) << "k: " << triangles_array.at(j + 1).third_point.point_num;
+            }
             i = i + 1;
             ii = ii + 1;
             j = j + 2;
             k++;
         }
         l++;
-        LOG(INFO) << "New level l = " << l;
+        if (debug == true) {
+            LOG(INFO) << "New level l = " << l;
+        }
     }
     return triangles_array.back().third_point.point_num;
 }
