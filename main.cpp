@@ -36,52 +36,6 @@ int main() {
     el::Loggers::reconfigureAllLoggers(el::ConfigurationType::Format, "%level: %msg");
     LOG(INFO) << "Starting programm...";
 
-
-    /*****************************************************************************************************/
-    /* Тест вычисления матрицы K и вектора F, а также определителя матрицы A и R с чертой. (стр. 95 учебник)*/
-    /*const points test_Point_A = (points){ 8.0, 3 };
-    const points test_Point_B = (points){ 8.5, 4 };
-    const points test_Point_C = (points){ 7.5, 4 };
-    triangles test_triangle = {test_Point_A, test_Point_B, test_Point_C};
-    const double test_A = 40.0; // heat coeff
-    const double test_INIT_TEMPERATURE = 300.0;
-    const double test_H = 0.5;
-    double test_Q = test_INIT_TEMPERATURE * test_H;
-
-    double test_res_A = test_triangle.GetMatrixADeterminant(); // determinant f matrix A
-    cout << "2A = " << 2 * test_res_A << endl;
-
-    double test_R = test_triangle.GetR();
-    cout << "R = " << test_R << endl;
-
-    double test_something = (2.0 * PI * test_R * test_A) / (4.0 * test_res_A);
-    cout << "2 * pi * R * a / (4 * A) = " << test_something << endl;
-
-    double** test_K;
-    test_K = new double*[3];
-    for (int i = 0; i < 3; i++) {
-        test_K[i] = new double[3];
-    }
-    test_triangle.Matrix_K(test_K);
-
-
-    cout << "Matrix K: " << endl;
-    for (auto i = 0; i < 3; i ++) {
-        for (auto j = 0; j < 3; j ++)
-            cout << setprecision(10) << test_K[i][j] << "\t" ;
-        cout << endl;
-    }
-
-    double * test_F = new double[3];
-    test_triangle.Column_F(test_F ,150);
-
-    cout << "F = :";
-    for (auto i = 0; i < 3; i++)
-        cout << test_F[i] << "\t";*/
-    /*****************************************************************************************************/
-
-
-    /*****************************************************************************************************/
     /* Объявление переменных */
 
     /**
@@ -169,8 +123,6 @@ int main() {
      */
     vector< vector<double> > equation1_A(n, std::vector<double>(n+1));
     gauss_12062017 equation1;
-    /*****************************************************************************************************/
-
 
 
     /* Debug */
@@ -251,50 +203,16 @@ int main() {
             /* В Fi записываем температуры Temp на текущем временном слое тех узлов, которые входят в элемент k */
             for (uint_fast32_t j = 0; j < DIMENSION; j++) {
                 Fi[j] = Temp[ind[j]];
-                cout<<Fi[j]<<" ";
             }
-            cout<<endl;
 
             func_substract_two_matrices(substracted_matrix, C, K, 3, 2.0/TAU);
 
-
-           /* cout<<"Fi"<<endl;
-            for (int ii = 0; ii<3; ii++){
-                cout<<Fi[ii]<<" ";
-            }
-            cout<<endl;
-
-            cout<<"substracted_matrix"<<endl;
-            for (int ii = 0; ii<3; ii++){
-                for (int j = 0; j<3; j++)
-                cout<<substracted_matrix[ii][j]<<" ";
-            }
-            cout<<endl;*/
-
-            for (uint_fast32_t ii = 0; ii < DIMENSION; ii++)
-                Resultic[ii] = 0;
-            for (int ix = 0; ix < DIMENSION; ix++) {
-                Resultic[ix] = 0;
-                for (int jx = 0; jx < DIMENSION; jx++)
-                    Resultic[ix] += substracted_matrix[ix][jx] * Fi[jx];
-            }
-
-            //func_multiply_matrix_and_vector(Resultic, substracted_matrix, Fi, 3);
-            /*cout<<"Resultic"<<endl;
-            for (int ii = 0; ii<3; ii++){
-                cout<<Resultic[ii]<<" ";
-            }
-            cout<<endl;*/
-
-
+            func_multiply_matrix_and_vector(Resultic, substracted_matrix, Fi, 3);
 
             /* Заполняем итоговую матрицу жесткости и вектор правой части  полученными на элементе значениями */
-            cout<<"F[j]"<<endl;
             for (uint_fast32_t j = 0; j < 3; j++) {
                 //Result[ind[j]] += (Resultic[j]) - 2 * F[j];
                 FF[ind[j]] += - 2 * F[j];
-                //cout<<"FF[ind[j]] = "<<FF[ind[j]]<<" ";
-               //cout<<"F[j] = "<<F[j]<<" ";
                 //Result[ind[j]] += F[j];
                 for (uint_fast32_t l = 0; l < 3; l++) {
                     Main_Matrix[ind[j]][ind[l]] += (C[j][l] * 2 / TAU) + K[j][l];
@@ -302,51 +220,17 @@ int main() {
                     //Main_Matrix[ind[j]][ind[l]] += K[j][l];
                 }
             }
-            cout<<endl;
-
-
-            /* Debug*/
-            /*if ( i == (k - 2 ) || i == (k - 1)) {
-                cout << "C" << endl;
-                for (auto m = 0; m < 3; m++)
-                    for (auto p = 0; p < 3; p++)
-                        cout << C[m][p] << "\t";
-                cout << endl;
-
-                cout << "K" << endl;
-                for (auto m = 0; m < 3; m++)
-                    for (auto p = 0; p < 3; p++)
-                        cout << K[m][p] << "\t";
-                cout << endl;
-
-                cout << "Resultic" << endl;
-                for (auto m = 0; m < 3; m++)
-                    cout << Resultic[m] << "\t";
-                cout << endl;
-
-                cout << "F" << endl;
-                for (auto m = 0; m < 3; m++)
-                    cout << F[m] << "\t";
-                cout << endl;
-            }*/
-            /* End debug*/
         }
         for (int ix = 0; ix < n; ix++) {
             Result[ix] = 0;
             for (int jx = 0; jx <n; jx++)
                 Result[ix] += R1[ix][jx] * Temp[jx];
         }
-        cout<<"Result 1"<<endl;
+
         for (int ii = 0; ii<n; ii++){
-            cout<<Result[ii]<<" ";
             Result[ii]+= FF[ii];
         }
-        cout<<endl;
-        cout<<"Result 2"<<endl;
-        for (int ii = 0; ii<n; ii++){
-            cout<<Result[ii]<<" ";
-        }
-        cout<<endl;
+
         /* Debug */
         for (int p = 0; p < n; p++) {
             for (int j = 0; j < n; j++) {
@@ -371,21 +255,7 @@ int main() {
             equation1_A[p][n] = Result[p];
         }
 
-        //print(equation1_A);
-
-
         equation1.gauss(Temp, equation1_A);
-        //equation.GaussSolve(Temp, Main_Matrix, Result, n);
-
-        /* Debug */
-        cout << "After GaussSolve: " << endl;
-        cout << "Temperature " << "\t" << "Result" << endl;
-        for (auto p = 0; p < n; p++) {
-            cout << FF[p] <<"\t"<<Result[p]<<endl;
-            //cout << Result[i] << endl;
-        }
-        cout << "-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-" << endl;
-        /* End debug */
 
         /* Debug */
        file2 << "----------------------\n";
@@ -434,13 +304,12 @@ double func_calculate_q(double t)
 }
 
 void func_multiply_matrix_and_vector(double* result_vector, double** matrix, double* vect, uint_fast32_t dim) {
-    for (uint_fast32_t i = 0; i < dim; i++)
-        result_vector[i] = 0;
-
-    for (uint_fast32_t i = 0; i < dim; i++) {
-        for (uint_fast32_t j = 0; j < dim; j++) {
-            result_vector[i] += vect[j] * matrix[j][i];
-        }
+    for (uint_fast32_t ii = 0; ii < DIMENSION; ii++)
+        result_vector[ii] = 0;
+    for (int ix = 0; ix < DIMENSION; ix++) {
+        result_vector[ix] = 0;
+        for (int jx = 0; jx < DIMENSION; jx++)
+            result_vector[ix] += matrix[ix][jx] * vect[jx];
     }
 }
 

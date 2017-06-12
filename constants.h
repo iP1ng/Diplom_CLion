@@ -3,7 +3,7 @@
 #define DIPLOM_CONSTANTS_H
 
 const double STEP_X = 0.1;
-const double TAU = 0.001;
+const double TAU = 0.0000001;
 const double TRIANGLE_HEIGHT = 2;
 const double EPS_T = 0.001;
 const double INITIAL_TEMPERATURE = 300;
