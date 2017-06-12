@@ -8,10 +8,10 @@
  * Структура, описывающая координаты и номер узла, а также радиус-вектор узла.
  */
 struct points {
-    double_t x;
-    double_t y;
+    double x;
+    double y;
     // TODO проверить, что радиус-вектор в цилиндрических координатах вычисляется так
-    double_t rad_vector() { return x; }
+    double rad_vector() { return x; }
     uint_fast32_t point_num;
 };
 
@@ -25,29 +25,29 @@ struct triangles {
     points second_point;
     points third_point;
 
-    void coef_a(double_t* a)
+    void coef_a(double* a)
     {
         a[0] = second_point.x * third_point.y - third_point.x * second_point.y;
         a[1] = third_point.x * first_point.y - first_point.x * third_point.y;
         a[2] = first_point.x * second_point.y - second_point.x * first_point.y;
     }
-    void coef_b(double_t* b)
+    void coef_b(double* b)
     {
         b[0] = second_point.y - third_point.y;
         b[1] = third_point.y - first_point.y;
         b[2] = first_point.y - second_point.y;
     }
-    void coef_c(double_t* c)
+    void coef_c(double* c)
     {
         c[0] = third_point.x - second_point.x;
         c[1] = first_point.x - third_point.x;
         c[2] = second_point.x - first_point.x;
     }
-    double_t GetSquareTriangleArea()
+    double GetSquareTriangleArea()
     {
         return STEP_X * 2 * STEP_X * 0.5;
     }
-    double_t GetMatrixADeterminant()
+    double GetMatrixADeterminant()
     {
         return 0.5 * (second_point.x * third_point.y
                       - third_point.x * second_point.y
@@ -56,7 +56,7 @@ struct triangles {
                       + third_point.x * first_point.y
                       - second_point.x * first_point.y);
     }
-    double_t GetR() {
+    double GetR() {
         points p[3];
 
         p[0].x = first_point.x;
@@ -66,7 +66,7 @@ struct triangles {
         p[2].x = third_point.x;
         p[2].y = third_point.y;
 
-        double_t R = (0.0833333333333333333333333) * ((2 * p[0].rad_vector()
+        double R = (0.0833333333333333333333333) * ((2 * p[0].rad_vector()
                                                        + p[1].rad_vector()
                                                        + p[2].rad_vector())
                                                       * p[0].rad_vector()
@@ -83,9 +83,9 @@ struct triangles {
     void Matrix_K(double** K)
     {
         points p[3];
-        double_t a[3];
-        double_t b[3];
-        double_t c[3];
+        double a[3];
+        double b[3];
+        double c[3];
         coef_a(a);
         coef_b(b);
         coef_c(c);
@@ -99,7 +99,7 @@ struct triangles {
         //std::cout << "p[0].rad_vector() = " << p[0].rad_vector() << std::endl;
         //std::cout << "p[1].rad_vector() = " << p[1].rad_vector() << std::endl;
         //std::cout << "p[2].rad_vector() = " << p[2].rad_vector() << std::endl;
-        double_t R = (0.0833333333333333333333333) * ((2 * p[0].rad_vector()
+        double R = (0.0833333333333333333333333) * ((2 * p[0].rad_vector()
                                                        + p[1].rad_vector()
                                                        + p[2].rad_vector())
                                                       * p[0].rad_vector()
@@ -138,8 +138,8 @@ struct triangles {
         p[2].x = third_point.x;
         p[2].y = third_point.y;
 
-        double_t D = 2 * PI * this->GetMatrixADeterminant() / 180;
-        double_t R[3];
+        double D = 2 * PI * this->GetMatrixADeterminant() / 180;
+        double R[3];
         for (int i = 0; i < 3; i++) {
             R[i] = p[i].rad_vector();
         }
