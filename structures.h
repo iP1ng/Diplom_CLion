@@ -195,9 +195,11 @@ struct triangles {
         F[0] = 0;
         F[1] = 0;
         F[2] = 0;
-        if (fabs(2 * first_point.x - first_point.y) < EPS_T && fabs(2 * third_point.x - third_point.y) < EPS_T) {
+        if (fabs(2 * first_point.x - first_point.y) < EPS_T
+            && fabs(2 * third_point.x - third_point.y) < EPS_T) {
             F[0] = k * (2.0 * first_point.rad_vector() + third_point.rad_vector());
             F[2] = k * (first_point.rad_vector() + 2 * third_point.rad_vector());
+
         }
         /* Для теста из учебника (стр. 95) */
         /*

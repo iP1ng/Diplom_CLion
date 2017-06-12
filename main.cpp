@@ -9,9 +9,9 @@ double_t func_calculate_rho(double_t h);
 
 double_t func_calculate_q(double_t t);
 
-double_t* func_multiply_matrix_and_vector(double_t** matrix, double_t* vect, uint_fast32_t dim);
+void func_multiply_matrix_and_vector(double_t* result_vector, double_t** matrix, double_t* vect, uint_fast32_t dim);
 
-double_t ** func_substract_two_matrices(double_t** matrix1, double_t** matrix2, uint_fast32_t dim, double_t devide_element);
+void func_substract_two_matrices(double_t** result_matrix, double_t** matrix1, double_t** matrix2, uint_fast32_t dim, double_t devide_element);
 
 using namespace std;
 
@@ -68,6 +68,10 @@ int main() {
     /* Объявление переменных */
 
     /**
+     * Debug сообщения
+     */
+    boolean debug = false;
+    /**
      * Вывод итоговой матрицы жесткости
      */
     ofstream file1("Main_matrix.dat");
@@ -90,13 +94,9 @@ int main() {
      */
     GaussMethod equation;
     /**
-     * Шаг по временному слою
-     */
-    double_t tau = TAU;
-    /**
      * Число точек
      */
-    uint_fast32_t n = triangle.GetGreed(false) + 1;
+    uint_fast32_t n = triangle.GetGreed(debug) +1;
     /**
      * Число узлов
      */
@@ -104,11 +104,11 @@ int main() {
     /**
      * Тепловой поток, заданный на границе
      */
-    double_t q = func_calculate_q(tau);
+    double_t q = func_calculate_q(TAU);
     /**
      * Столбец правых частей для элемента
      */
-    double_t *F = new double_t[3];
+    double_t *F = new double_t[DIMENSION];
     /**
      * Значения температуры в узлах
      */
@@ -120,7 +120,7 @@ int main() {
     /**
      * Промежуточная переменная для записи произведения матрицы и столбца
      */
-    double_t *Resultic = new double_t[3];
+    double_t *Resultic = new double_t[DIMENSION];
     /**
      * Вектор правых частей итоговой системы
      */
@@ -132,30 +132,31 @@ int main() {
     /**
      * Матрица коэффициентов элемента K
      */
-    double_t **K= new double_t *[3];
+    double_t **K= new double_t *[DIMENSION];
     /**
      * Матрица коэффициентов элемента C
      */
-    double_t **C = new double_t *[3];
+    double_t **C = new double_t *[DIMENSION];
     /**
      * Массив номеров строк в итоговом векторе правых частей Result,
      * к которому нужно будет прибавить полученные правые части F на элементе
      */
-    uint_fast32_t ind[3];
+    uint_fast32_t ind[DIMENSION];
     /**
      * Результат вычитания двух матриц. Вспомогательная переменная
      */
-    double_t ** substracted_matrix = new double_t* [3];
+    double_t ** substracted_matrix = new double_t* [DIMENSION];
     /*****************************************************************************************************/
 
 
 
     /* Debug */
-    q = 100000;
-
     LOG(INFO) << "Number of dots = " << n;
     LOG(INFO) << "Number of triangles = " << k;
     LOG(INFO) << "Heat flux q = " << q;
+    LOG(INFO) << "Space step h = " << STEP_X;
+    LOG(INFO) << "Time step tau = " << TAU;
+    cout << endl;
     /* End debug */
 
     /* Задаем начальное условие распределения температуры */
@@ -163,13 +164,32 @@ int main() {
         Temp[i] = INITIAL_TEMPERATURE;
     }
 
-    for (uint_fast32_t i = 0; i < 3; i++) {
-        substracted_matrix[i] = new double_t[3];
-        for (uint_fast32_t j = 0; j < 3; j++)
-            substracted_matrix[i][j] = 0;
+    for (uint_fast32_t i = 0; i < DIMENSION; i++) {
+        substracted_matrix[i] = new double_t[DIMENSION];
     }
+
+    /* Инициализация матрц K, C и вектора правых частей F для элемента */
+    for (uint_fast32_t i = 0; i < DIMENSION; i++) {
+        K[i] = new double_t[DIMENSION];
+        C[i] = new double_t[DIMENSION];
+        F[i] = 0;
+        for (uint_fast32_t j = 0; j < DIMENSION; j++) {
+            K[i][j] = 0;
+            C[i][j] = 0;
+            substracted_matrix[i][j] = 0;
+        }
+    }
+
     /* Ищем решения по временным слоям */
-    for (uint_fast32_t global_tau =0; global_tau < 10; global_tau++) {
+    for (uint_fast32_t global_tau =0; global_tau < 4; global_tau++) {
+
+        /* Debug */
+        cout << "Temperature on step " << global_tau << endl;
+        for (uint_fast32_t i = 0; i < n; i++) {
+            cout << Temp[i] << "\t";
+        }
+        cout << endl;
+        /* End debug */
 
         /* Инициализация матрицы жесткости и вектора правой части итоговой системы */
         for (uint_fast32_t i = 0; i < n; i++) {
@@ -180,11 +200,13 @@ int main() {
             }
         }
 
-        /* Инициализация матрц K, C и вектора правых частей F для элемента */
-        for (uint_fast32_t i = 0; i < 3; i++) {
-            K[i] = new double_t[3];
-            C[i] = new double_t[3];
+        for (uint_fast32_t i = 0; i < DIMENSION; i++) {
             F[i] = 0;
+            for (uint_fast32_t j = 0; j < DIMENSION; j++) {
+                K[i][j] = 0;
+                C[i][j] = 0;
+                substracted_matrix[i][j] = 0;
+            }
         }
 
         /* Идем по всем элементам */
@@ -199,43 +221,76 @@ int main() {
             ind[2] = triangle.triangles_array[i].third_point.point_num;
 
             /* В Fi записываем температуры Temp на текущем временном слое тех узлов, которые входят в элемент k */
-            for (uint_fast32_t j = 0; j < 3; j++) {
+            for (uint_fast32_t j = 0; j < DIMENSION; j++) {
                 Fi[j] = Temp[ind[j]];
             }
 
-            Resultic = func_multiply_matrix_and_vector(C, Fi, 3);
-            substracted_matrix = func_substract_two_matrices(C, K, 3, 2.0/tau);
+            func_substract_two_matrices(substracted_matrix, C, K, 3, 2.0/TAU);
+            func_multiply_matrix_and_vector(Resultic, substracted_matrix, Fi, 3);
+
             /* Заполняем итоговую матрицу жесткости и вектор правой части полученными на элементе значениями */
             for (uint_fast32_t j = 0; j < 3; j++) {
-                Result[ind[j]] += (Resultic[j] / tau) + F[j];
+                Result[ind[j]] += (Resultic[j]) - 2 * F[j];
                 for (uint_fast32_t l = 0; l < 3; l++) {
-                    Main_Matrix[ind[j]][ind[l]] += (C[j][l] / tau) + K[j][l];
+                    Main_Matrix[ind[j]][ind[l]] += (C[j][l] * 2 / TAU) + K[j][l];
                 }
             }
 
-            /* Debug */
-/*            file1 << k << endl;
-            for (int iii = 0; iii < n; iii++) {
-                for (int j = 0; j < n; j++) {
-                    file1 << Main_Matrix[iii][j] << " ";
-                }
-                file1 << endl;
+            /* Debug*/
+            if ( i == (k - 2 ) || i == (k - 1)) {
+                cout << "C" << endl;
+                for (auto m = 0; m < 3; m++)
+                    for (auto p = 0; p < 3; p++)
+                        cout << C[m][p] << "\t";
+                cout << endl;
+
+                cout << "K" << endl;
+                for (auto m = 0; m < 3; m++)
+                    for (auto p = 0; p < 3; p++)
+                        cout << K[m][p] << "\t";
+                cout << endl;
+
+                cout << "Resultic" << endl;
+                for (auto m = 0; m < 3; m++)
+                    cout << Resultic[m] << "\t";
+                cout << endl;
+
+                cout << "F" << endl;
+                for (auto m = 0; m < 3; m++)
+                    cout << F[m] << "\t";
+                cout << endl;
             }
-            file1 << " ------------------------------------------" << endl;*/
-            /* End debug */
+            /* End debug*/
         }
 
         /* Debug */
-/*        for (int i = 0; i < n; i++) {
+        for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
                 file1 << Main_Matrix[i][j] << " ";
             }
             file1 << endl;
         }
-        file1.close();*/
+        file1 << " ------------------------------------------" << endl;
+        file1 << "Result" << endl;
+        for (int i = 0; i < n; i++)
+            file1 << Result[i] << " " << endl;
+        file1 << " --------********---------------------------" << endl;
         /* End debug */
 
-        Temp = equation.GaussSolve(Main_Matrix, Result, n);
+        equation.GaussSolve(Temp, Main_Matrix, Result, n);
+
+        //Test
+        //Temp[65] = Temp[64];
+        //Result[65] = Result[64];
+        /* Debug */
+        cout << "After GaussSolve: " << endl;
+        cout << "Temperature " << "\t" << "Result" << endl;
+        for (auto i = 56; i < 66; i++) {
+            cout << Temp[i] << "\t ";
+            cout << Result[i] << endl;
+        }
+        cout << "-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-" << endl;
+        /* End debug */
 
         /* Debug */
         file2 << "----------------------\n";
@@ -260,6 +315,8 @@ int main() {
         }
         /* End debug */
     }
+    file1.close();
+    file2.close();
     return 0;
 }
 
@@ -281,10 +338,7 @@ double_t func_calculate_q(double_t t)
     return ((S * rho * V * V * V) / (Thermal_Conductivity * pi * r * sqrt(r * r + H * H)));
 }
 
-double_t* func_multiply_matrix_and_vector(double_t** matrix, double_t* vect, uint_fast32_t dim)
-{
-    double_t* result_vector;
-    result_vector = new double_t[3];
+void func_multiply_matrix_and_vector(double_t* result_vector, double_t** matrix, double_t* vect, uint_fast32_t dim) {
     for (auto i = 0; i < 3; i++)
         result_vector[i] = 0;
 
@@ -293,17 +347,12 @@ double_t* func_multiply_matrix_and_vector(double_t** matrix, double_t* vect, uin
             result_vector[i] += vect[j] * matrix[j][i];
         }
     }
-    return result_vector;
 }
 
-double_t ** func_substract_two_matrices(double_t** matrix1, double_t** matrix2, uint_fast32_t dim, double_t devide_element) {
-    double_t ** result_matrix = new double_t* [dim];
-    for (auto i = 0; i < dim; i++)
-        result_matrix[i] = new double_t[dim];
+void func_substract_two_matrices(double_t ** result_matrix, double_t** matrix1, double_t** matrix2, uint_fast32_t dim, double_t devide_element) {
 
     for (auto i = 0; i < dim; i++)
         for (auto j = 0; j < dim; j++)
             result_matrix[i][j] = (devide_element * matrix1[i][j]) - matrix2[i][j];
 
-    return result_matrix;
 }

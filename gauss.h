@@ -10,7 +10,7 @@
 
 class GaussMethod {
 public:
-    double* GaussSolve(double** a, double* y, int n);
+    void GaussSolve(double *x, double** a, double* y, int n);
 };
 
 

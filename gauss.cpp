@@ -1,11 +1,10 @@
 
 #include "gauss.h"
 
-double *GaussMethod::GaussSolve(double **a, double *y, int n) {
-    double *x, max;
+void GaussMethod::GaussSolve(double *x, double **a, double *y, int n) {
+    double  max;
     int k, index;
     const double eps = 0.00001; // точность
-    x = new double[n];
     k = 0;
     while (k < n) {
         // Поиск строки с максимальным a[i][k]
@@ -47,5 +46,4 @@ double *GaussMethod::GaussSolve(double **a, double *y, int n) {
         for (int i = 0; i < k; i++)
             y[i] = y[i] - a[i][k] * x[k];
     }
-    return x;
 }
