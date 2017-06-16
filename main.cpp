@@ -1,5 +1,5 @@
 
-#include "triangle.h"
+#include "Triangle/triangle.h"
 #include "gauss.h"
 #include <iomanip> // setprecicion for cout Debug
 #include "gauss_12062017.h" // another gauss Debug
