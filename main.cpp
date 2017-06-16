@@ -1,8 +1,8 @@
 
 #include "Triangle/triangle.h"
-#include "gauss.h"
+#include "Gauss/gauss.h"
 #include <iomanip> // setprecicion for cout Debug
-#include "gauss_12062017.h" // another gauss Debug
+
 
 INITIALIZE_EASYLOGGINGPP
 
@@ -61,10 +61,6 @@ int main() {
      */
     IsoscelesTriangleGrid triangle(Point_A, Point_B, Point_C, STEP_X);
     /**
-     * Инстанс класса, отвечающий за решение СЛАУ на каждом элементе методом Гаусса
-     */
-    GaussMethod equation;
-    /**
      * Число точек
      */
     uint_fast32_t n = triangle.GetGreed(debug) +1;
@@ -122,7 +118,7 @@ int main() {
      * Еще один Гаусс
      */
     vector< vector<double> > equation1_A(n, std::vector<double>(n+1));
-    gauss_12062017 equation1;
+    Gauss equation;
 
 
     /* Debug */
@@ -255,7 +251,7 @@ int main() {
             equation1_A[p][n] = Result[p];
         }
 
-        equation1.gauss(Temp, equation1_A);
+        equation.Solve(Temp, equation1_A);
 
         /* Debug */
        file2 << "----------------------\n";
